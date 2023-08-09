@@ -23,7 +23,11 @@ function LoginScreen() {
 
     useEffect(() => {
         if(userInfo){
+          if(redirect === 'shipping'){
+            history('/shipping')
+          }else{
             history(redirect)
+          }
         }
     }, [history, userInfo, redirect])
 

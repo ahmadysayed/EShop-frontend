@@ -8,11 +8,10 @@ import { addToCart, removeFromCart } from '../actions/cartAction'
 function CartScreen() {
 
   // Use hooks from React Router v6 instead of 'match' and 'location'
-  const params = useParams();
-  const location = useLocation();
-  const navigate = useNavigate();
-
   const { id } = useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
+ 
   const qty = location.search ? Number(location.search.split('=')[1]) : 1
 
   const dispatch = useDispatch()

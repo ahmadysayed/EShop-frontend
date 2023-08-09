@@ -17,7 +17,7 @@ function RegisterScreen() {
 
     
     const dispatch = useDispatch()
-    const history = useNavigate(); 
+    const history = useNavigate()
 
     const location = useLocation()
     const redirect = location.search ? location.search.split('=')[1] : '/'
