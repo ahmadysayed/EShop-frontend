@@ -9,7 +9,7 @@ import Message from '../components/Message'
 // import axios from 'axios'
 
 
-function ProductScreen({ history }) {
+function ProductScreen() {
     const [qty, setQty] = useState(1)
 
     const { id } = useParams();    
