@@ -27,7 +27,7 @@ function OrderScreen() {
             dispatch(getOrderDetails(id))
         }
         
-    }, [order, id])
+    }, [dispatch, order, id])
 
     
 
