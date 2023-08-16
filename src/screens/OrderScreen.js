@@ -1,35 +1,54 @@
 import React, { useState, useEffect } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { Button, Row, Col, ListGroup, Image, Card } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
-import { getOrderDetails } from '../actions/orderAction'
+import { getOrderDetails, payOrder } from '../actions/orderAction'
+import { ORDER_PAY_RESET } from '../constants/orderConstants'
+import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
+
 
 function OrderScreen() {
 
     const { id } = useParams();    
     const dispatch = useDispatch()
 
-    const history = useNavigate()
+    const [sdkReady, setSdkReady] = useState(false)
 
     const orderDetails = useSelector(state =>  state.orderDetails)
     const { order, error, loading } = orderDetails
 
+    const orderPay = useSelector(state =>  state.orderPay)
+    const { loading: loadingPay, success: successPay } = orderPay
+
+
+
     if (!loading && !error){
         order.itemsPrice = order.orderItems.reduce((acc, item) => acc + item.price * item.qty, 0).toFixed(2)
     }
+
    
     
     useEffect(() => {
-        if (!order || order._id !== Number(id)){
+        if (!order || orderPay || order._id !== Number(id)){
+            dispatch({type: ORDER_PAY_RESET})
             dispatch(getOrderDetails(id))
+        }else if(!order.isPaid) {
+            
+                setSdkReady(true)
+            
         }
         
-    }, [dispatch, order, id])
+    }, [dispatch, order, id, successPay])
+
 
     
+    const successPaymentHandler = (paymentResult) => {
+        dispatch(payOrder(id, paymentResult))
+    }
+
 
   return loading ? ( <Loader /> ) : error ? ( 
     <Message variant='danger'>{error}</Message>
@@ -145,7 +164,34 @@ function OrderScreen() {
                                 <Col>Total:</Col>
                                 <Col>${order.totalPrice}</Col>
                             </Row>
-                        </ListGroup.Item>          
+                        </ListGroup.Item>    
+
+                        {!order.isPaid && (
+                        <ListGroup.Item>
+                            {loadingPay && <Loader />}
+                            <PayPalScriptProvider options={{ 'client-id': 'AZ2x-OM0xtqVb_Up8sobCdse8RJHmejml6pf2xKbC-cBq2s00-UfpyoYnzhCkLPAd1jSVkKTQrxrMcB9' }}>
+                            <PayPalButtons
+                                createOrder={(data, actions) => {
+                                    return actions.order.create({
+                                        purchase_units: [
+                                            {
+                                                amount: {
+                                                    value: parseFloat(order.totalPrice).toFixed(2), // Convert to float and then use toFixed
+                                                },
+                                            },
+                                        ],
+                                    });
+                                }}
+                                onApprove={(data, actions) => {
+                                    return actions.order.capture().then(function (details) {
+                                        successPaymentHandler(details);
+                                    });
+                                }}
+                            />
+
+                            </PayPalScriptProvider>
+                        </ListGroup.Item>
+                    )}     
 
                     </ListGroup>
                 </Card>
@@ -157,3 +203,9 @@ function OrderScreen() {
 }
 
 export default OrderScreen
+
+
+
+
+
+
