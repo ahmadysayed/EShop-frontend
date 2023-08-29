@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import thunk from 'redux-thunk';
-import { productListReducer, productDetailsReducer, productDeleteReducer} from './reducer/productReducers';
+import { productListReducer, productDetailsReducer, productDeleteReducer, productCreateReducer} from './reducer/productReducers';
 import { cartReducer } from './reducer/cartReducers';
 import { 
   userLoginReducer, 
@@ -17,6 +17,7 @@ const reducer = {
   productList: productListReducer,
   productDetails: productDetailsReducer,
   productDelete: productDeleteReducer,
+  productCreate: productCreateReducer,
 
   cart: cartReducer,
   userLogin: userLoginReducer,
